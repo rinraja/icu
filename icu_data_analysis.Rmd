@@ -106,42 +106,71 @@ barplot(table(icu$creat))
 ```
 Based off of the visualizations it can be concluded that the majority of patients did not have cancer or a fracture. The majority also were within the healthy levels of pH, PCO2, bicarbonate, and creatinine.  
 
-
-
-```{r}
-#Explore relationship between vital status and age
-
-#First look at the distributions of each variable
-table(icu$vital.status)
-barplot(table(icu$vital.status))
-
-hist(icu$age)
-table(icu$age)
-```
-It is important to note that the vital.status variable is binary and the distribution of the age of people in this data set is highest between the ages of 60-80. This is important when analyzing the vital status variable because there is a largely different frequency for each age group. It is also interesting that 20% of population died.    
-
+Study the relationships between the variables:
 ```{r}
 #Plot the relationship between vital status and age
 plot(icu$vital.status, icu$age)
 ```
-Based on the plot between both variables, it is clear that as people get older, their chance of dying is much higher than people that are younger. We can see that the mean of people that died is roughly 70 whereas, the mean the people that lived is closer to 60. It is also important to note that there are two outliers in the people that died. This again shows that it was rare to have very young people die.    
-
-
-```{r}
-#Explore relationship between vital status and sys blood pressure
-hist(icu$sys)
-table(icu$sys)
-barplot(table(icu$sys))
-```
-We can see that the majority of people in this data set had a blood pressures between 100 and roughly 160. We can see that there were much less people with pressure levels that were lower and higher than the majority. This makes sense because therr typically is a systolic pressure range that healthy people should have and when there are health issues, those values can increase and decrease.  
+It is important to note that the vital.status variable is binary and the distribution of the age of people in this data set is highest between the ages of 55-75. This is important when analyzing the vital status variable because there is a largely different frequency for each age group. Based on the plot between both variables, it is clear that as people get older, their chance of dying is much higher when compared to patients that are younger. We can see that the mean of people that died is roughly 70 whereas, the mean the people that lived is closer to 60. It is also important to note that there are two outliers in the people that died. This again shows that it was rare to have very young people die.    
 
 ```{r}
-#Plot the relationship between vital status and sys blood pressure
-plot(icu$vital.status, icu$sys)
+#Plot the relationship between vital status and gender
+icu %>% 
+  select(vital.status, gender) %>% 
+  ggplot() + 
+  geom_bar(aes(x=vital.status)) +
+  facet_grid(~gender) +
+  labs(title = "Vital Status Depending on Gender")
+```
+This graph illustrates a patient's vital status depending on their gender. It can be concluded that more males survived compared to females. 
+```{r}
+#Plot the relationship between vital status and race
+icu %>% 
+  select(vital.status, race) %>% 
+  ggplot() + 
+  geom_bar(aes(x=vital.status)) +
+  facet_grid(~race) +
+  labs(title = "Vital Status Depending on Race")
+```
+It can be concluded that more white people survived after visiting the ICU when compared to other races. It is also important to recognize that there is a large difference between the number of white patients compared to minority groups. This large numerical difference in distributions can largely impact the outcome. 
+
+```{r}
+#Plot the relationship between vital status and pH
+icu %>% 
+  select(vital.status, PH) %>% 
+  ggplot() + 
+  geom_bar(aes(x=vital.status)) +
+  facet_grid(~PH) +
+  labs(title = "Vital Status Depending on pH")
+```
+```{r}
+#Plot the relationship between vital status and PC02
+icu %>% 
+  select(vital.status, PCO2) %>% 
+  ggplot() + 
+  geom_bar(aes(x=vital.status)) +
+  facet_grid(~PCO2) +
+  labs(title = "Vital Status Depending on PCO2")
 ```
 
-Based on the plot it can be concluded that people with higher systolic blood pressure levels had higher chances of survival. If individuals had lower blood pressure levels, then they were at a higher risk of dying. The mean of both variables is roughly at 125, with the mean for died being a little lower. We can also note that the patients who lived had a smaller distribution of their pressure, whereas the patients that dies had much lower pressures. It is also important to note that lived has two outliers, where one is much lower and the other one is much higher. Out of the patients that died, only one was in the upper extreme. 
-
+```{r}
+#Plot the relationship between vital status and bicarb
+icu %>% 
+  select(vital.status, bicarb) %>% 
+  ggplot() + 
+  geom_bar(aes(x=vital.status)) +
+  facet_grid(~bicarb) +
+  labs(title = "Vital Status Depending on Bicarbonate Levels")
+```
+```{r}
+#Plot the relationship between vital status and creat
+icu %>% 
+  select(vital.status, creat) %>% 
+  ggplot() + 
+  geom_bar(aes(x=vital.status)) +
+  facet_grid(~creat) +
+  labs(title = "Vital Status Depending on Creatanine Levels")
+```
 
 ```{r}
 #Explore relationship between vital status and type of service needed
