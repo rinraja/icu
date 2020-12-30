@@ -23,3 +23,4 @@ when they are checked into the intensive care unit. The variables are listed bel
 
 ## Project Description
 [Include detailed description of the analysis]
+When a patient goes to the ICU, it is very important to understand their medical history in order to provide them with the correct medical assistance. Their likelihood of survival also will change based on whether they have any medical complications or past conditions. 
