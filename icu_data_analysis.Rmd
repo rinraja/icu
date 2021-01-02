@@ -88,23 +88,19 @@ type_stats
 Based off of the calculations it can be concluded that 92.5% of patients didn't have a coma and 2.5% had a deep stupor when they entered the ICU. Additionally, 85% of patients visited the ICU in the past 6 months and 15% did not. Lastly, 46.5% of patients had a medical service, 53.5% had a surgical service, 26.5% had an elective admission, and 73.5% had an emergency admission. 
 
 ```{r}
-#Medical factors
-table(icu$cancer)
-table(icu$fracture)
+#Arterial Blood Gas factors
 table(icu$PH)
 table(icu$PCO2)
 table(icu$bicarb)
-table(icu$creat)
+table(icu$PO2)
 
 #Plots of medical factors
-barplot(table(icu$cancer))
-barplot(table(icu$fracture))
 barplot(table(icu$PH))
 barplot(table(icu$PCO2))
 barplot(table(icu$bicarb))
-barplot(table(icu$creat))
+barplot(table(icu$PO2))
 ```
-Based off of the visualizations it can be concluded that the majority of patients did not have cancer or a fracture. The majority also were within the healthy levels of pH, PCO2, bicarbonate, and creatinine.  
+Based off of the visualizations it can be concluded that the majority of patients did not have cancer or a fracture. The majority also were within the healthy levels of pH, PCO2, PO2, and bicarbonate.  
 
 Study the relationships between the variables:
 ```{r}
@@ -143,6 +139,7 @@ icu %>%
   facet_grid(~PH) +
   labs(title = "Vital Status Depending on pH")
 ```
+This graph shows us that patients who had a pH value greater than 7.25 had a higher chance of survival. 
 ```{r}
 #Plot the relationship between vital status and PC02
 icu %>% 
@@ -152,6 +149,7 @@ icu %>%
   facet_grid(~PCO2) +
   labs(title = "Vital Status Depending on PCO2")
 ```
+This graph shows us that patients who had a PCO2 value greater than 45 had a higher chance of survival.
 
 ```{r}
 #Plot the relationship between vital status and bicarb
@@ -162,97 +160,20 @@ icu %>%
   facet_grid(~bicarb) +
   labs(title = "Vital Status Depending on Bicarbonate Levels")
 ```
+This graph shows us that patients who had a bicarbonate levels greater than 18 had a higher chance of survival.
 ```{r}
-#Plot the relationship between vital status and creat
+#Plot the relationship between vital status and PO2
 icu %>% 
-  select(vital.status, creat) %>% 
+  select(vital.status, PO2) %>% 
   ggplot() + 
   geom_bar(aes(x=vital.status)) +
-  facet_grid(~creat) +
-  labs(title = "Vital Status Depending on Creatanine Levels")
+  facet_grid(~PO2) +
+  labs(title = "Vital Status Depending on PO2")
 ```
+This graph shows us that patients who had a PO2 levels greater than 60 had a higher chance of survival.
 
+Check whether there is an association between demographic factors(age, gender, & race) and vital.status. Chi-square test will be used to determine whether there is an association between categorical variables. 
 ```{r}
-#Explore relationship between vital status and type of service needed
-table(icu$service)
-barplot(table(icu$service))
-
-#Plot the relationship on a graph
-plot(icu$vital.status, icu$service)
-
-#Divide data up by service and vital status
-med <- icu %>%
-  filter(service == 'medical')
-
-surg <- icu %>%
-  filter(service == 'surgical')
-
-print("Medical Services")
-table(med$vital.status)
-print("Surgical Services")
-table(surg$vital.status)
-```
-Summary Statistics:
-
-Medical -> 93/200 = 0.465
-Surgical -> 107/200 = 0.535
-
-Medical that died -> 26/93 = 0.2795699
-Surgical that died -> 14/107 = 0.1308411
-
-Based off the breakdown in each service needed, we can see that people who required medical services had a higher number of deaths compared to those that needed surgery. It is very interesting because the number of patients in each service is roughly the same, so the difference between deaths is quite peculiar. This does not makes logical sense because surgery is often much more dangerous and can lead to more complications compared to medical services. It is quite hard to tell what the medical services are based off of this analysis to reason as to why the death rates are higher.   
-
-```{r}
-#Explore relationship between vital status and type of admission
-table(icu$type)
-barplot(table(icu$type))
-
-#Plot the relationship on a graph
-plot(icu$vital.status, icu$type)
-
-#Divide data up by service and type
-elec <- icu %>%
-  filter(type == 'elective')
-
-emg <- icu %>%
-  filter(type == 'emergency')
-
-print("Elective Type")
-table(elec$vital.status)
-print("Emergency Type")
-table(emg$vital.status)
-
-```
-Summary Statistics:
-Elective -> 53/200 = 0.265
-Emergency -> 147/200 = 0.735
-
-Elective that died -> 2/53 = 0.03773585
-Emergency that died -> 38/147 = 0.2585034
-
-We can conclude that patients who went to the ICU due to an emergency had a higher death rate in comparison to those that elected to go. It is also important to notice that less than roughly half of the number of emergency patients were elective. This shows that the majority people that went to the ICU were in emergency situations, which does logically make sense. It is also shocking to see that only 38 out of the total number of 147 emergency patients died. I have always assumed that the death rates would be very high depending upon the extreme situations that patients are in. 
-
-
-```{r}
-#Check demographics of age, gender, and race compared to vital status
-
-#Preliminary analysis for each predictor variable
-hist(icu$age)
-barplot(table(icu$gender))
-barplot(table(icu$race))
-
-barplot(table(icu$vital.status))
-
-#Explore the relationship 
-plot(icu$vital.status, icu$age)
-plot(icu$vital.status, icu$gender)
-plot(icu$vital.status, icu$race)
-```
-Since the plots were not very helpful in determining whether there was an association between both variables, chi-square tests were conducted.
-
-```{r}
-#Chi-square tests in order to determine association
-
 #Vitals & Age
 #Create a table to understand the number of values in each section
 vitals.age = table(icu$vital.status, icu$age,
@@ -280,15 +201,18 @@ vitals.race = table(icu$vital.status, icu$race,
 addmargins(vitals.race)
 chisq.test(vitals.race)
 ```
-The p-value for vitals and gender is 0.4046, which is not less than 0.05 so we cannot reject our null hypothesis. This means that there is no association between race and vital status. 
+The p-value for vitals and gender is 0.4046, which is not less than 0.05 so we cannot reject our null hypothesis. This means that there is no association between race and vital status.
 
+P-values:
+  Age -> 0.005165
+  Gender -> 0.913
+  Race -> 0.4046  
+
+It can be concluded that age is the only demographic factor that impacts the vital status of an ICU patient. This makes logical sense because as patients are older they are more susceptible to other underlying conditions that can be fatal.    
+
+The Arterial Blood Gas(ABG) values (pH, PO2, PCO2, & bicarbonate) will be checked in order to see whether there is an association with vital.status. 
 ```{r}
 #ABG & Vital 
-#The ABG factors are columns 15-18, so the values are PO2, PH, PCO2, & bicarb
-
-#Check PO2 Variable
-barplot(table(icu$PO2))
-
 #Vitals & PO2
 vitals.po2 = table(icu$vital.status, icu$PO2,
                      dnn = c("Vital Status", "Oxygen Partial Pressure"))
@@ -296,10 +220,9 @@ addmargins(vitals.po2)
 chisq.test(vitals.po2)
 ```
 
-```{r}
-#Check PH Variable
-barplot(table(icu$PH))
+The p-value for vitals and PO2 is 0.3969, which is not less than 0.05 so we cannot reject our null hypothesis. This means that there is no association between PO2 and vital status.
 
+```{r}
 #Vitals & PH
 vitals.ph = table(icu$vital.status, icu$PH,
                      dnn = c("Vital Status", "Normal Blood pH"))
@@ -307,44 +230,68 @@ addmargins(vitals.ph)
 chisq.test(vitals.ph)
 ```
 
-```{r}
-#Check PCO2 Variable
-barplot(table(icu$PCO2))
+The p-value for vitals and pH is 0.5187, which is not less than 0.05 so we cannot reject our null hypothesis. This means that there is an association between pH and vital status.
 
+```{r}
 #Vitals & PCO2
 vitals.pco2 = table(icu$vital.status, icu$PCO2,
                      dnn = c("Vital Status", "Carbon Dioxide Partial Pressure"))
 addmargins(vitals.pco2)
 chisq.test(vitals.pco2)
 ```
+The p-value for vitals and PCO2 is 1, which is not less than 0.05 so we cannot reject our null hypothesis. This means that there is no association between PCO2 and vital status.
 
 ```{r}
-#Check bicarb Variable
-barplot(table(icu$bicarb))
-
 #Vitals & bicarb
 vitals.bicarb = table(icu$vital.status, icu$bicarb,
                      dnn = c("Vital Status", "Bicarbonate Level"))
 addmargins(vitals.bicarb)
 chisq.test(vitals.bicarb)
 ```
+The p-value for vitals and bicarb is 0.3141, which is not less than 0.05 so we cannot reject our null hypothesis. This means that there is no association between bicarbonate levels and vital status.
+
 P-values:
   PO2 -> 0.3969
   PH -> 0.5187
   PCO2 -> 1
   bicarb -> 0.3141
   
-Based off of the chi-square tests, none of the ABG measures are associated with vital status because all of the p-values are greater than 0.05. After looking at the boxplots of all of the variables, I believe that since each variable has such a high number of patients with the same values, these attributes might not make that much of a difference when it comes to vital status. 
+Based off of the chi-square tests, none of the ABG measures are associated with vital status because all of the p-values are greater than 0.05. The conclusion can be made that a patients outcome after visiting the ICU will not be significantly affected by PO2, PH, PCO2, or bicarbonate levels. 
+
+The other general factors that can impact vital status will also be considered and their association with the predictor variable will be analyzed. 
+```{r}
+#Vitals & Conscious
+vitals.cons = table(icu$vital.status, icu$conscious,
+                     dnn = c("Vital Status", "Conscious"))
+addmargins(vitals.cons)
+chisq.test(vitals.cons)
+```
+The p-value for vitals and conscious is 1.091e-10, which is much smaller than 0.05 so we can reject our null hypothesis. This means that there is an association between conscious level and vital status.
+```{r}
+#Vitals & Previous
+vitals.prev = table(icu$vital.status, icu$previous,
+                     dnn = c("Vital Status", "Previous"))
+addmargins(vitals.prev)
+chisq.test(vitals.prev)
+```
+The p-value for vitals and previous is 0.8045, which is not less than 0.05 so we cannot reject our null hypothesis. This means that there is no association between previous and vital status.
 
 ```{r}
-#Associated with ICU Mortality
-
-#ICU & Cancer
-icu.cancer = table(icu$vital.status, icu$cancer,
-                     dnn = c("Vital Status", "Cancer"))
-addmargins(icu.cancer)
-chisq.test(icu.cancer)
+#Vitals & Service
+vitals.serv = table(icu$vital.status, icu$service,
+                     dnn = c("Vital Status", "Service"))
+addmargins(vitals.serv)
+chisq.test(vitals.serv)
 ```
+The p-value for vitals and service is 0.01446, which is less than 0.05 so we can reject our null hypothesis. This means that there is an association between service and vital status.
+```{r}
+#Vitals & Type
+vitals.typ = table(icu$vital.status, icu$type,
+                     dnn = c("Vital Status", "Type"))
+addmargins(vitals.typ)
+chisq.test(vitals.typ)
+```
+The p-value for vitals and type is 0.001177, which is less than 0.05 so we can reject our null hypothesis. This means that there is an association between type and vital status.
 
 ```{r}
 #ICU & Chronic Renal Failure
@@ -353,7 +300,7 @@ icu.renal = table(icu$vital.status, icu$renal,
 addmargins(icu.renal)
 chisq.test(icu.renal)
 ```
-
+The p-value for vitals and renal is 0.0257, which is less than 0.05 so we can reject our null hypothesis. This means that there is an association between renal and vital status.
 ```{r}
 #ICU & Probable Infection
 icu.infect = table(icu$vital.status, icu$infect.prob,
@@ -361,27 +308,21 @@ icu.infect = table(icu$vital.status, icu$infect.prob,
 addmargins(icu.infect)
 chisq.test(icu.infect)
 ```
+The p-value for vitals and infection is 0.01641, which is less than 0.05 so we can reject our null hypothesis. This means that there is an association between renal and vital status.
 
+
+Since vital.status is a categorical variable, multinomial logistic regression will be used to understand the relationship between the predictor variables and the response variable. The four predictor variables have already been checked to be significant using the chi-square test.  
 ```{r}
-#ICU & Presence of bone fracture
-icu.bone = table(icu$vital.status, icu$fracture,
-                     dnn = c("Vital Status", "Bone Fracture"))
-addmargins(icu.bone)
-chisq.test(icu.bone)
+summary(glm(vital.status ~ age + service + renal + infect.prob, data = icu, family=binomial(link = "logit")))
 ```
-Resulting p-values:
-  Cancer -> 1
-  Renal Failure -> 0.0257
-  Probable Infection -> 0.01641
-  Bone Fracture -> 1
-  
-Based off of the p-values calculated by the chi-square, we can determine that renal failure and probable infection are both factors that impact a patient's chance of survival. We can make this determination because both variables have p-values that are less than 0.05. 
+Regression Equation:
+log_odds = -2.96348 + 0.02559*age + -0.80716*servicesurgical + 0.80719*renalyes + 0.60780*infect.probyes
+
+The p-values for two variable in this model is statistically significant, so a better model is required.  
+
 
 ```{r}
-#Based off of part b, we can state that renal failure, probable infection, and age are all variables that impact vital status of a patient
 #Logistic regression will be used because vital status is a binary variable
-
-
 summary(glm(vital.status ~ renal + infect.prob + age, data = icu, family = binomial(link = "logit")))
 ```
 Regression Equation:
@@ -405,6 +346,5 @@ log_odds_no = -3.29684 + 0.94835*0 + 0.77453*0 + 0.02329*20
 odds_no = exp(log_odds_no)
 paste("log odds: ", log_odds_no, sep=" ")
 paste("odds: ", odds_no, sep=" ")
-
 ```
 We can determine that if a patient is 20 years of age and has a probable infection, they will have 0.12789 odds of living, whereas if that patient does not have a probable infection their odds of living is only 0.05895. The odds ratio is greater than 1 which means that the higher risk is associated with the group of people that have the infection. This does makes sense because someone that is at a risk of having an infection might experience complications that could lead to death. 
